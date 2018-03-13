@@ -1,101 +1,131 @@
 var express = require('express');
 var router = express.Router();
 var mongoose = require('mongoose');
-const { ensureLoggedIn }    = require('connect-ensure-login');
+
 const Story = require('../models/story-model');
 
-/* GET Stories listing. */
-router.get('/stories', (req, res, next) => {
-  Story.find((err, storiesList) => {
-    if (err) {
-      res.json(err);
+// create new story
+router.post('/api/stories/new', (req, res, next) => {
+  if(!req.user){
+      res.status(401).json({message: "Log in to create story."});
       return;
-    }
-    res.json(storiesList);
+  }
+  const newStory = new Story({
+    title: req.body.title,
+    content: req.body.content
+  });
+
+  newStory.save((err) => {
+      if(err){
+          res.status(500).json({message: "Some weird error from DB."});
+          return;
+      }
+      // validation errors
+      if (err && newStory.errors){
+          res.status(400).json({
+              brandError: newStory.errors.brand,
+          });
+          return;
+      }
+      req.user.encryptedPassword = undefined;
+      newStory.user = req.user;
+
+      res.status(200).json(newStory);
   });
 });
 
-/* CREATE a new Story. */
-router.post('/stories', ensureLoggedIn('/login'), (req, res, next) => {
-    const theStory = new Story({
-      title: req.body.title,
-      content: req.body.content
-        // This will throw an error is there's no
-        // User to associate the story with
-        // _creator: req.user._id
-    });
-  
-    theStory.save((err) => {
-      if (err) {
-        res.json(err);
-        return;
-      }
-  
-      res.json({
-        message: 'New Story created!',
-        id: theStory._id
-      });
-    });
-  });
+// list the stories
 
-  /* GET a single Story. */
-router.get('/stories/:id', (req, res) => {
-  if(!mongoose.Types.ObjectId.isValid(req.params.id)) {
-    res.status(400).json({ message: 'Specified id is not valid' });
+router.get('/api/stories', (req, res, next) => {
+  if (!req.user) {
+    res.status(401).json({ message: "Log in to see the stories." });
     return;
   }
-  
-  Story.findById(req.params.id, (err, theStory) => {
+  Story.find()
+    // retrieve all the info of the owners (needs "ref" in model)
+    // don't retrieve "encryptedPassword" though
+    .populate('user', { encryptedPassword: 0 })
+    .exec((err, allTheStories) => {
       if (err) {
-        res.json(err);
+        res.status(500).json({ message: "Stories find went bad." });
         return;
       }
-
-      res.json(theStory);
+      res.status(200).json(allTheStories);
     });
 });
 
-/* EDIT a Story. */
-router.put('/stories/:id', (req, res) => {
-  if(!mongoose.Types.ObjectId.isValid(req.params.id)) {
-    res.status(400).json({ message: 'Specified id is not valid' });
+// list single story
+router.get("/api/stories/:id", (req, res, next) => {
+if (!req.user) {
+  res.status(401).json({ message: "Log in to see THE story." });
+  return;
+}
+if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+  res.status(400).json({ message: "Specified id is not valid" });
+  return;
+}
+
+Story.findById(req.params.id, (err, theStory) => {
+  if (err) {
+    //res.json(err);
+    res.status(500).json({ message: "Stories find went bad." });
     return;
+  }
+
+  res.status(200).json(theStory);
+});
+});
+
+// update the story
+router.put('/api/stories/:id', (req, res, next) => {
+  if (!req.user) {
+    res.status(401).json({ message: "Log in to update the story." });
+    return;
+  }
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      res.status(400).json({ message: "Specified id is not valid" });
+      return;
   }
 
   const updates = {
-    title: req.body.title,
-    content: req.body.content
+      title: req.body.title,
+      content: req.body.content
   };
-  
-  Story.findByIdAndUpdate(req.params.id, updates, (err) => {
-    if (err) {
-      res.json(err);
-      return;
-    }
 
-    res.json({
-      message: 'Story updated successfully'
-    });
-  });
-})
-
-/* DELETE a Story. */
-router.delete('/stories/:id', (req, res) => {
-  if(!mongoose.Types.ObjectId.isValid(req.params.id)) {
-    res.status(400).json({ message: 'Specified id is not valid' });
+Story.findByIdAndUpdate(req.params.id, updates, err => {
+  if (err) {
+    res.json(err);
     return;
   }
-  
-  Story.remove({ _id: req.params.id }, (err) => {
-    if (err) {
-      res.json(err);
-      return;
-    }
 
-    return res.json({
-      message: 'Story has been removed!'
-    });
-  })
+  res.json({
+    message: "Story updated successfully."
+  });
 });
+});
+
+// delete a story
+router.delete("/api/stories/:id", (req, res, next) => {
+if (!req.user) {
+  res.status(401).json({ message: "Log in to delete the story." });
+  return;
+}
+if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+  res.status(400).json({ message: "Specified id is not valid." });
+  return;
+}
+
+Story.remove({ _id: req.params.id }, err => {
+  if (err) {
+    res.json(err);
+    return;
+  }
+
+  res.json({
+    message: "Story has been removed."
+  });
+});
+});
+
 
 module.exports = router;
