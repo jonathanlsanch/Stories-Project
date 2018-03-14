@@ -11,6 +11,7 @@ router.post('/api/stories/new', (req, res, next) => {
       return;
   }
   const newStory = new Story({
+    category: req.body.category,
     title: req.body.title,
     content: req.body.content
   });
@@ -88,8 +89,9 @@ router.put('/api/stories/:id', (req, res, next) => {
   }
 
   const updates = {
+      category: req.body.category,
       title: req.body.title,
-      content: req.body.content
+      content: req.body.content,
   };
 
 Story.findByIdAndUpdate(req.params.id, updates, err => {
