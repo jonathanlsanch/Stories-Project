@@ -1,8 +1,8 @@
-var express = require('express');
-var router = express.Router();
+var express  = require('express');
+var router   = express.Router();
 var mongoose = require('mongoose');
-
-const Story = require('../models/story-model');
+const TYPES  = require('../models/story-types');
+const Story  = require('../models/story-model');
 
 // create new story
 router.post('/api/stories/new', (req, res, next) => {
