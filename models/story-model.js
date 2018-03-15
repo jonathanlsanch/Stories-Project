@@ -8,7 +8,8 @@ const storySchema = new mongoose.Schema({
   category: { 
     type: String,
     enum: TYPES,
-    required: true },
+    required: true 
+  },
   title: {
     type: String,
     required: [true, 'The story title is required']

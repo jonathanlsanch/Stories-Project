@@ -1,11 +1,11 @@
 var express  = require('express');
 var router   = express.Router();
 var mongoose = require('mongoose');
-const TYPES  = require('../models/story-types');
+// const TYPES  = require('../models/story-types');
 const Story  = require('../models/story-model');
 
 // create new story
-router.post('/api/stories/new', (req, res, next) => {
+router.post('/api/stories', (req, res, next) => {
   if(!req.user){
       res.status(401).json({message: "Log in to create story."});
       return;
@@ -38,6 +38,7 @@ router.post('/api/stories/new', (req, res, next) => {
 // list the stories
 
 router.get('/api/stories', (req, res, next) => {
+  console.log("user in the route", req.user)
   if (!req.user) {
     res.status(401).json({ message: "Log in to see the stories." });
     return;
@@ -47,6 +48,7 @@ router.get('/api/stories', (req, res, next) => {
     // don't retrieve "encryptedPassword" though
     .populate('user', { encryptedPassword: 0 })
     .exec((err, allTheStories) => {
+      console.log("stories in my backend", allTheStories)
       if (err) {
         res.status(500).json({ message: "Stories find went bad." });
         return;
@@ -91,7 +93,7 @@ router.put('/api/stories/:id', (req, res, next) => {
   const updates = {
       category: req.body.category,
       title: req.body.title,
-      content: req.body.content,
+      content: req.body.content
   };
 
 Story.findByIdAndUpdate(req.params.id, updates, err => {
