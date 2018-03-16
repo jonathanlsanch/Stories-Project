@@ -1,7 +1,6 @@
 var express  = require('express');
 var router   = express.Router();
 var mongoose = require('mongoose');
-// const TYPES = require('../models/story-types');
 const Story  = require('../models/story-model');
 
 // create new story
@@ -13,7 +12,11 @@ router.post('/api/stories', (req, res, next) => {
   const newStory = new Story({
     category: req.body.category,
     title: req.body.title,
-    content: req.body.content
+    salutation: req.body.salutation,
+    recipient: req.body.recipient,
+    content: req.body.content,
+    signoff: req.body.signoff,
+    sender: req.body.sender
   });
 
   newStory.save((err) => {
@@ -91,9 +94,13 @@ router.put('/api/stories/:id', (req, res, next) => {
   }
 
   const updates = {
-      category: req.body.category,
-      title: req.body.title,
-      content: req.body.content
+    category: req.body.category,
+    title: req.body.title,
+    salutation: req.body.salutation,
+    recipient: req.body.recipient,
+    content: req.body.content,
+    signoff: req.body.signoff,
+    sender: req.body.sender
   };
 
 Story.findByIdAndUpdate(req.params.id, updates, err => {
