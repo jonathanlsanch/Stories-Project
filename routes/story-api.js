@@ -1,7 +1,7 @@
 var express  = require('express');
 var router   = express.Router();
 var mongoose = require('mongoose');
-// const TYPES  = require('../models/story-types');
+// const TYPES = require('../models/story-types');
 const Story  = require('../models/story-model');
 
 // create new story
@@ -24,7 +24,7 @@ router.post('/api/stories', (req, res, next) => {
       // validation errors
       if (err && newStory.errors){
           res.status(400).json({
-              brandError: newStory.errors.brand,
+              brandError: newStory.errors.title,
           });
           return;
       }

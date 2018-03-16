@@ -2,13 +2,12 @@
 
 const mongoose = require('mongoose');
 const Schema   = mongoose.Schema;
-const TYPES = require('./story-types');
+// const TYPES = require('./story-types');
 
 const storySchema = new mongoose.Schema({  
   category: { 
     type: String,
-    enum: TYPES,
-    required: true 
+    required: [true, 'The story title is required']
   },
   title: {
     type: String,
