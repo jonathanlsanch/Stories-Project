@@ -51,7 +51,7 @@ router.get('/api/stories', (req, res, next) => {
     // don't retrieve "encryptedPassword" though
     .populate('user', { encryptedPassword: 0 })
     .exec((err, allTheStories) => {
-      console.log("stories in my backend", allTheStories)
+      // console.log("stories in my backend", allTheStories)
       if (err) {
         res.status(500).json({ message: "Stories find went bad." });
         return;
@@ -137,6 +137,7 @@ Story.remove({ _id: req.params.id }, err => {
   });
 });
 });
+
 
 
 module.exports = router;
