@@ -9,7 +9,7 @@ var session = require('express-session');
 var passport = require('passport');
 var cors = require('cors');
 
-require('dotenv').config();
+// require('dotenv').config();
 require('./configs/passport-config');
 
 // var index = require('./routes/index');
