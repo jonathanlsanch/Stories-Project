@@ -31,8 +31,15 @@ const storySchema = new mongoose.Schema({
   sender: {
     type: String,
     required: [true, 'The story sender is required']
-  }
-});
+  },
+  
+  
+},
+
+{
+  timestamps: true
+}
+);
 
 const Story = mongoose.model('Story', storySchema);
 

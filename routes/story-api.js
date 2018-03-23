@@ -3,6 +3,51 @@ var router   = express.Router();
 var mongoose = require('mongoose');
 const Story  = require('../models/story-model');
 
+
+//find latest story
+router.get('/api/stories/latest', (req, res, next) => {
+  console.log("trying")
+  if (!req.user) {
+    res.status(401).json({ message: "Log in to see the stories." });
+    return;
+  }
+
+  Story .findOne()
+  .sort('-createdAt')  // give me the max
+  .exec(function (err, member) {
+    if (err) {
+      res.status(500).json({ message: "Stories find went bad." });
+      return;
+    }
+
+    res.status(200).json(member);
+    // your callback code
+
+  });
+  });
+  
+  
+  
+
+
+
+
+
+
+// router.get('/api/stories/latest', (req, res, next) => {
+//   console.log("trying bro")
+  
+//   Story.findOne()
+//   .then(function(err, theStory) {
+//     console.log("the STORY")
+//     console.log(theStory)
+//     res.json(theStory);
+//   });
+  
+// });
+
+
+
 // create new story
 router.post('/api/stories', (req, res, next) => {
   if(!req.user){
@@ -37,6 +82,9 @@ router.post('/api/stories', (req, res, next) => {
       res.status(200).json(newStory);
   });
 });
+
+
+
 
 // list the stories
 
